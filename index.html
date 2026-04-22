@@ -137,6 +137,30 @@
       margin-bottom: 10px;
       min-height: 20px;
     }
+
+    .name-field {
+      margin-bottom: 20px;
+    }
+
+    .name-field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .name-field input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .name-field input:focus { border-color: #4f46e5; }
   </style>
 </head>
 <body>
@@ -153,6 +177,11 @@
       <li>Как вы справляетесь со сложными ситуациями на работе?</li>
       <li>Какие у вас ожидания от новой должности?</li>
     </ol>
+  </div>
+
+  <div class="name-field">
+    <label for="candidateName">Ваше ФИО</label>
+    <input type="text" id="candidateName" placeholder="Введите полное имя" />
   </div>
 
   <video id="video" autoplay muted playsinline></video>
@@ -175,9 +204,12 @@
 
 <script>
   const CLOUD_NAME    = 'dzjrpclwo';
-  const UPLOAD_PRESET = 'videointerview'; // создайте unsigned preset с таким именем в Cloudinary
+  const UPLOAD_PRESET = 'videointerview';
+  const TG_BOT_TOKEN  = '7588970130:AAGBliJxkTZ5Jc_8iNkE1jgXGDqbFmkTHgc';
+  const TG_CHAT_ID    = '828391768';
 
   const video         = document.getElementById('video');
+  const candidateName = document.getElementById('candidateName');
   const btnStart      = document.getElementById('btnStart');
   const btnStop       = document.getElementById('btnStop');
   const btnUpload     = document.getElementById('btnUpload');
@@ -269,8 +301,23 @@
     btnStart.disabled = false;
   }
 
+  function sendTelegramNotification(name, videoUrl) {
+    const text = 'Новое видеоинтервью!\nКандидат: ' + name + '\nСсылка на видео: ' + videoUrl;
+    fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: text })
+    });
+  }
+
   function uploadVideo() {
     if (!blob) return;
+
+    const name = candidateName.value.trim();
+    if (!name) {
+      setStatus('Пожалуйста, введите ваше ФИО перед отправкой.', 'error');
+      return;
+    }
 
     btnUpload.disabled = true;
     btnStart.disabled  = true;
@@ -302,7 +349,7 @@
         progressBar.value         = 100;
         progressLabel.textContent = '100%';
         setStatus('Видео успешно отправлено! Спасибо за прохождение интервью.', 'success');
-        console.log('Cloudinary URL:', res.secure_url);
+        sendTelegramNotification(name, res.secure_url);
       } else {
         setStatus('Ошибка загрузки: ' + xhr.statusText, 'error');
         btnUpload.disabled = false;
