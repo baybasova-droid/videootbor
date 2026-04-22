@@ -205,8 +205,7 @@
 <script>
   const CLOUD_NAME    = 'dzjrpclwo';
   const UPLOAD_PRESET = 'videointerview';
-  const TG_BOT_TOKEN  = '8591477305:AAG2pHoqxmbQRuKVtAnjept-0EhaMA7TBvg';
-  const TG_CHAT_ID    = '828391768';
+  const NOTIFY_URL = 'http://localhost:8080/notify';
 
   const video         = document.getElementById('video');
   const candidateName = document.getElementById('candidateName');
@@ -302,23 +301,17 @@
   }
 
   function sendTelegramNotification(name, videoUrl) {
-    const text = 'Новое видеоинтервью!\nКандидат: ' + name + '\nСсылка на видео: ' + videoUrl;
-    fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage', {
+    fetch(NOTIFY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: Number(TG_CHAT_ID), text: text })
+      body: JSON.stringify({ name: name, video_url: videoUrl })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (!data.ok) {
-          console.error('Telegram API error:', data.description);
-        } else {
-          console.log('Telegram уведомление отправлено');
-        }
+        if (!data.ok) console.error('Notify error:', data.error);
+        else console.log('Telegram уведомление отправлено');
       })
-      .catch(function (err) {
-        console.error('Telegram fetch error:', err);
-      });
+      .catch(function (err) { console.error('Notify fetch error:', err); });
   }
 
   function uploadVideo() {
