@@ -1,194 +1,325 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Видеоотбор — Бизнес-тренер</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-  .container { max-width: 640px; width: 100%; }
-  .header { background: #1D9E75; padding: 1.5rem; border-radius: 12px 12px 0 0; color: #fff; }
-  .header h1 { font-size: 22px; font-weight: 500; margin: 0; }
-  .header p { font-size: 14px; margin: 4px 0 0; opacity: .85; }
-  .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 0 0 12px 12px; padding: 1.5rem; }
-  .step { display: none; }
-  .step.active { display: block; }
-  .question-box { background: #f9f9f9; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
-  .question-box .num { font-size: 13px; color: #888; }
-  .question-box .text { font-size: 15px; font-weight: 500; margin-top: 6px; color: #222; }
-  .video-box { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; position: relative; margin-bottom: 1rem; }
-  .video-box video { width: 100%; height: 100%; object-fit: cover; }
-  .placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff; }
-  .cam-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; }
-  .controls { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn { padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 14px; cursor: pointer; color: #222; }
-  .btn.primary { background: #1D9E75; color: #fff; border-color: #1D9E75; }
-  .btn.danger { background: #E24B4A; color: #fff; border-color: #E24B4A; }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .progress { display: flex; gap: 6px; margin-bottom: 1.5rem; }
-  .dot { height: 4px; flex: 1; border-radius: 2px; background: #e0e0e0; }
-  .dot.done { background: #1D9E75; }
-  .dot.active { background: #1D9E75; opacity: .5; }
-  .timer { font-size: 13px; color: #888; margin-bottom: 8px; }
-  .recorded { background: #E1F5EE; border-radius: 8px; padding: 12px; font-size: 14px; color: #085041; margin-bottom: 1rem; }
-  .info-box { background: #f9f9f9; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 13px; color: #666; }
-  .success-icon { width: 64px; height: 64px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Видеоинтервью</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 36px 32px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 8px; }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 12px;
+      background: #000;
+      display: block;
+      margin-bottom: 20px;
+      max-height: 340px;
+    }
+
+    .questions {
+      background: #f8f9ff;
+      border-left: 4px solid #4f46e5;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+    }
+
+    .questions h3 {
+      font-size: 14px;
+      color: #4f46e5;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .questions ol {
+      padding-left: 18px;
+      color: #333;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    #btnStart  { background: #4f46e5; color: #fff; }
+    #btnStop   { background: #ef4444; color: #fff; }
+    #btnUpload { background: #10b981; color: #fff; }
+
+    .status {
+      font-size: 14px;
+      color: #555;
+      min-height: 22px;
+      text-align: center;
+    }
+
+    .status.error   { color: #ef4444; }
+    .status.success { color: #10b981; font-weight: 600; }
+
+    .progress-wrap { margin-top: 14px; display: none; }
+    .progress-wrap.visible { display: block; }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      appearance: none;
+      overflow: hidden;
+    }
+
+    progress::-webkit-progress-bar   { background: #e5e7eb; border-radius: 4px; }
+    progress::-webkit-progress-value { background: #10b981; border-radius: 4px; }
+
+    .progress-label { font-size: 12px; color: #888; text-align: right; margin-top: 4px; }
+
+    .rec-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      margin-right: 6px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .timer {
+      font-size: 13px;
+      color: #ef4444;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
+      min-height: 20px;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>Видеоотбор</h1>
-    <p>Видеоинтервью — Бизнес-тренер</p>
+<div class="card">
+  <h1>Видеоинтервью</h1>
+  <p class="subtitle">Запишите короткое видео (до 3 минут), отвечая на вопросы ниже. Говорите чётко, смотрите в камеру.</p>
+
+  <div class="questions">
+    <h3>Вопросы для видеоинтервью:</h3>
+    <ol>
+      <li>Расскажите о себе и вашем опыте работы</li>
+      <li>Почему вы хотите работать на этой должности?</li>
+      <li>Какое ваше главное профессиональное достижение?</li>
+      <li>Как вы справляетесь со сложными ситуациями на работе?</li>
+      <li>Какие у вас ожидания от новой должности?</li>
+    </ol>
   </div>
-  <div class="card">
 
-    <div class="step active" id="step-intro">
-      <p style="font-size:15px;color:#222;margin:0 0 1rem">Здравствуйте! Вы приглашены на видеоинтервью на позицию <strong>Бизнес-тренер</strong>.</p>
-      <p style="font-size:14px;color:#666;margin:0 0 1.5rem">Вам предстоит ответить на 4 вопроса. Каждый ответ записывается через камеру. Вы можете перезаписать ответ неограниченное количество раз.</p>
-      <div class="info-box">Убедитесь что камера и микрофон подключены и браузер имеет к ним доступ.</div>
-      <button class="btn primary" onclick="startInterview()">Начать интервью</button>
-    </div>
+  <video id="video" autoplay muted playsinline></video>
 
-    <div class="step" id="step-questions">
-      <div class="progress" id="progress"></div>
-      <div class="question-box">
-        <div class="num" id="q-num">Вопрос 1 из 4</div>
-        <div class="text" id="q-text">Расскажите о вашем самом успешном тренинге</div>
-      </div>
-      <div class="video-box">
-        <video id="preview" autoplay muted playsinline></video>
-        <div class="placeholder" id="placeholder">
-          <div class="cam-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-              <path d="M15 10l4.553-2.069A1 1 0 0121 8.868V15.131a1 1 0 01-1.447.899L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
-            </svg>
-          </div>
-          <span style="font-size:13px">Нажмите "Начать запись"</span>
-        </div>
-      </div>
-      <div class="timer" id="timer"></div>
-      <div class="recorded" id="recorded-msg" style="display:none">Ответ записан! Можете перезаписать или перейти к следующему вопросу.</div>
-      <div class="controls">
-        <button class="btn primary" id="btn-record" onclick="toggleRecord()">Начать запись</button>
-        <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Следующий вопрос</button>
-      </div>
-    </div>
+  <div class="timer" id="timer"></div>
 
-    <div class="step" id="step-done">
-      <div style="text-align:center;padding:2rem 1rem">
-        <div class="success-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2">
-            <path d="M20 6L9 17l-5-5"/>
-          </svg>
-        </div>
-        <h2 style="font-size:20px;font-weight:500;margin:0 0 8px;color:#222">Интервью завершено!</h2>
-        <p style="font-size:14px;color:#666;margin:0">Спасибо за участие. Ваши ответы отправлены HR-менеджеру. Мы свяжемся с вами в ближайшее время.</p>
-      </div>
-    </div>
+  <div class="controls">
+    <button id="btnStart">&#9654; Начать запись</button>
+    <button id="btnStop" disabled>&#9646;&#9646; Остановить</button>
+    <button id="btnUpload" disabled>&#9729; Отправить видео</button>
+  </div>
 
+  <div class="status" id="status">Нажмите «Начать запись», чтобы включить камеру.</div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <progress id="progressBar" value="0" max="100"></progress>
+    <div class="progress-label" id="progressLabel">0%</div>
   </div>
 </div>
 
 <script>
-const questions = [
-  'Расскажите о вашем самом успешном тренинге — какую проблему решили и каков был результат?',
-  'Как вы адаптируете программу обучения под разные аудитории?',
-  'Как вы измеряете эффективность проведённого тренинга?',
-  'Почему вы хотите работать именно в нашей компании?'
-];
+  const CLOUD_NAME    = 'dzjrpclwo';
+  const UPLOAD_PRESET = 'videointerview'; // создайте unsigned preset с таким именем в Cloudinary
 
-let current = 0;
-let recording = false;
-let mediaRecorder = null;
-let stream = null;
-let timerInt = null;
-let seconds = 0;
+  const video         = document.getElementById('video');
+  const btnStart      = document.getElementById('btnStart');
+  const btnStop       = document.getElementById('btnStop');
+  const btnUpload     = document.getElementById('btnUpload');
+  const statusEl      = document.getElementById('status');
+  const progressWrap  = document.getElementById('progressWrap');
+  const progressBar   = document.getElementById('progressBar');
+  const progressLabel = document.getElementById('progressLabel');
+  const timerEl       = document.getElementById('timer');
 
-function showStep(id) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+  let mediaRecorder, stream, chunks = [], blob = null;
+  let timerInterval, seconds = 0;
+  const MAX_SECONDS = 180;
 
-function buildProgress() {
-  const p = document.getElementById('progress');
-  p.innerHTML = '';
-  questions.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i < current ? ' done' : i === current ? ' active' : '');
-    p.appendChild(d);
-  });
-}
-
-function loadQuestion() {
-  document.getElementById('q-num').textContent = 'Вопрос ' + (current + 1) + ' из ' + questions.length;
-  document.getElementById('q-text').textContent = questions[current];
-  document.getElementById('recorded-msg').style.display = 'none';
-  document.getElementById('btn-next').disabled = true;
-  document.getElementById('btn-next').textContent = current === questions.length - 1 ? 'Завершить' : 'Следующий вопрос';
-  document.getElementById('timer').textContent = '';
-  document.getElementById('btn-record').textContent = 'Начать запись';
-  document.getElementById('btn-record').className = 'btn primary';
-  buildProgress();
-}
-
-async function startInterview() {
-  showStep('step-questions');
-  loadQuestion();
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    document.getElementById('preview').srcObject = stream;
-    document.getElementById('placeholder').style.display = 'none';
-  } catch (e) {
-    document.getElementById('placeholder').querySelector('span').textContent = 'Разрешите доступ к камере';
+  function setStatus(msg, type = '') {
+    statusEl.textContent = msg;
+    statusEl.className = 'status ' + type;
   }
-}
 
-function toggleRecord() {
-  if (!recording) startRecord(); else stopRecord();
-}
-
-function startRecord() {
-  if (!stream) return;
-  recording = true;
-  seconds = 0;
-  document.getElementById('btn-record').textContent = 'Остановить запись';
-  document.getElementById('btn-record').className = 'btn danger';
-  document.getElementById('recorded-msg').style.display = 'none';
-  timerInt = setInterval(() => {
-    seconds++;
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    document.getElementById('timer').textContent = 'Запись: ' + m + ':' + String(s).padStart(2, '0');
-  }, 1000);
-  try {
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-  } catch (e) {}
-}
-
-function stopRecord() {
-  recording = false;
-  clearInterval(timerInt);
-  document.getElementById('btn-record').textContent = 'Перезаписать';
-  document.getElementById('btn-record').className = 'btn';
-  document.getElementById('timer').textContent = '';
-  document.getElementById('recorded-msg').style.display = 'block';
-  document.getElementById('btn-next').disabled = false;
-  if (mediaRecorder) try { mediaRecorder.stop(); } catch (e) {}
-}
-
-function nextQuestion() {
-  if (recording) stopRecord();
-  current++;
-  if (current >= questions.length) {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    showStep('step-done');
-  } else {
-    loadQuestion();
+  function formatTime(s) {
+    const m   = String(Math.floor(s / 60)).padStart(2, '0');
+    const sec = String(s % 60).padStart(2, '0');
+    return m + ':' + sec;
   }
-}
+
+  function startTimer() {
+    seconds = 0;
+    timerEl.innerHTML = '<span class="rec-dot"></span>REC ' + formatTime(seconds);
+    timerInterval = setInterval(function () {
+      seconds++;
+      timerEl.innerHTML = '<span class="rec-dot"></span>REC ' + formatTime(seconds);
+      if (seconds >= MAX_SECONDS) stopRecording();
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+    timerEl.textContent = '';
+  }
+
+  async function startRecording() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      video.srcObject = stream;
+      video.muted = true;
+
+      chunks = [];
+      blob = null;
+      btnUpload.disabled = true;
+
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+        ? 'video/webm;codecs=vp9'
+        : MediaRecorder.isTypeSupported('video/webm')
+        ? 'video/webm'
+        : '';
+
+      mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+
+      mediaRecorder.ondataavailable = function (e) {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = function () {
+        blob = new Blob(chunks, { type: mediaRecorder.mimeType });
+        const url = URL.createObjectURL(blob);
+        video.srcObject = null;
+        video.src = url;
+        video.muted = false;
+        video.controls = true;
+        btnUpload.disabled = false;
+        setStatus('Запись завершена. Просмотрите видео и нажмите «Отправить».');
+      };
+
+      mediaRecorder.start(1000);
+      startTimer();
+
+      btnStart.disabled = true;
+      btnStop.disabled  = false;
+      setStatus('Идёт запись... Отвечайте на вопросы.');
+    } catch (err) {
+      setStatus('Ошибка доступа к камере: ' + err.message, 'error');
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+    stopTimer();
+    btnStop.disabled  = true;
+    btnStart.disabled = false;
+  }
+
+  function uploadVideo() {
+    if (!blob) return;
+
+    btnUpload.disabled = true;
+    btnStart.disabled  = true;
+    progressWrap.classList.add('visible');
+    setStatus('Загрузка видео на сервер...');
+
+    const ext  = blob.type.includes('mp4') ? 'mp4' : 'webm';
+    const file = new File([blob], 'interview_' + Date.now() + '.' + ext, { type: blob.type });
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', 'videointerview');
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload');
+
+    xhr.upload.onprogress = function (e) {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        progressBar.value       = pct;
+        progressLabel.textContent = pct + '%';
+      }
+    };
+
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        progressBar.value         = 100;
+        progressLabel.textContent = '100%';
+        setStatus('Видео успешно отправлено! Спасибо за прохождение интервью.', 'success');
+        console.log('Cloudinary URL:', res.secure_url);
+      } else {
+        setStatus('Ошибка загрузки: ' + xhr.statusText, 'error');
+        btnUpload.disabled = false;
+      }
+    };
+
+    xhr.onerror = function () {
+      setStatus('Ошибка сети. Проверьте подключение и попробуйте снова.', 'error');
+      btnUpload.disabled = false;
+    };
+
+    xhr.send(formData);
+  }
+
+  btnStart.addEventListener('click', startRecording);
+  btnStop.addEventListener('click', stopRecording);
+  btnUpload.addEventListener('click', uploadVideo);
 </script>
 </body>
 </html>
